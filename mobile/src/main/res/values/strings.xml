@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">GRWear</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="testSendButton">Send current data</string>
+    <string name="app_welcome">The wearable app should be automatically transferred from your watch. The below buttons are for debugging purposes.</string>
+    <string name="thanks"><![CDATA[API by Richard Allitt <http://rsa33.user.srcf.net>, Icon licensed under Creative Commons 3.0 by Freepik]]></string>
+
+</resources>
