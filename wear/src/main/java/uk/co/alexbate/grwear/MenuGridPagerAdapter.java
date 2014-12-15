@@ -40,21 +40,31 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
                 e.printStackTrace();
             }
         } else {
+            JSONArray meals = null;
+            String description = "";
+            JSONObject thisMeal = null;
             try {
-                JSONArray meals;
                 if (i == 0) {
                     meals = json.getJSONArray("lunch");
                 } else {
                     meals = json.getJSONArray("dinner");
                 }
-                JSONObject thisMeal = meals.getJSONObject(i2 - 1);
-                String description = "Item " + Integer.toString(i2);
+                thisMeal = meals.getJSONObject(i2 - 1);
+                description = "Item " + Integer.toString(i2);
                 description += " - £" + thisMeal.getJSONArray("price").getString(0);
                 description += "/£" + thisMeal.getJSONArray("price").getString(1);
+
+            } catch (JSONException e) {
+                //Conference period
+                description = "Item " + Integer.toString(i2) + " - £5.50/£7.50";
+            }
+
+            try {
                 return CardFragment.create(description, thisMeal.getString("item"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
         }
 
         return null;
@@ -84,6 +94,6 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return 0;
+        return 1;
     }
 }
