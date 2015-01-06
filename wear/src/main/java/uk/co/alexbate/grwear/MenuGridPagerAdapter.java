@@ -89,7 +89,7 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
                 default:
                     r = 0;
             }
-            r++;
+            r++; //Add title card
             return r;
         } catch (JSONException e) {
             e.printStackTrace();
