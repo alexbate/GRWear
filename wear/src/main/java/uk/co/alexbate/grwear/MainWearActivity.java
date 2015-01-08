@@ -20,6 +20,8 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import java.util.List;
+
 
 public class MainWearActivity extends Activity {
 
@@ -27,39 +29,41 @@ public class MainWearActivity extends Activity {
     private String rawData;
     private GoogleApiClient mGoogleApiClient;
 
-    public void sendMsgToNode(Node node) {
-        PendingResult<MessageApi.SendMessageResult> result = Wearable.MessageApi.sendMessage(
-                mGoogleApiClient, node.getId(), "/start/sendDataActivity", null);
-        result.setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
-            @Override
-            public void onResult(MessageApi.SendMessageResult sendMessageResult) {
-                if (!sendMessageResult.getStatus().isSuccess()) {
-                    Log.e("Click", "ERROR: failed to send Message: " + sendMessageResult.getStatus());
-                }
-                getData();
+    public void sendMsgToNode() {
+        PendingResult<NodeApi.GetConnectedNodesResult> res = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient);
+        NodeApi.GetConnectedNodesResult finalRes = res.await();
+        List<Node> nodes = finalRes.getNodes();
+        for (final Node node: nodes) {
+            PendingResult<MessageApi.SendMessageResult> result = Wearable.MessageApi.sendMessage(
+                    mGoogleApiClient, node.getId(), "/start/sendDataActivity", null);
+            result.setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
+                @Override
+                public void onResult(MessageApi.SendMessageResult sendMessageResult) {
+                    if (!sendMessageResult.getStatus().isSuccess()) {
+                        Log.e("Click", "ERROR: failed to send Message: " + sendMessageResult.getStatus());
+                    }
+                    Log.d("Sent message, status:", sendMessageResult.getStatus().getStatusMessage() + " to " + node.getDisplayName());
+                    getData();
 
-            }
-        });
+                }
+            });
+        }
     }
 
     public void click(View view) {
-        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+        new Thread( new Runnable() {
             @Override
-            public void onResult(NodeApi.GetConnectedNodesResult getConnectedNodesResult) {
-                Node n = getConnectedNodesResult.getNodes().get(0);
-                sendMsgToNode(n);
+            public void run() {
+                Log.d("SendMessage Thread", "thread running");
+                sendMsgToNode();
             }
-        });
+        }).start();
+    }
 
-        int wait=0;
-        while(rawData==null) {
-            wait++;
-            mTextView.setText("Waiting for menu for " + wait + " loops");
-        }
+    public void startGridActivity() {
         Intent intent = new Intent(this, GridActivity.class);
         intent.putExtra("uk.co.alexbate.GRWear.API_DATA", rawData);
         startActivity(intent);
-
     }
 
     private void initGoogleServices() {
@@ -95,11 +99,14 @@ public class MainWearActivity extends Activity {
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
-                mTextView = (TextView) stub.findViewById(R.id.text);
-                getData();
-                if(rawData!=null) {
-                    mTextView.setText(rawData);
-                }
+                mTextView = (TextView) findViewById(R.id.text);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("SendMessage Thread", "thread running");
+                        sendMsgToNode();
+                    }
+                }).start();
             }
         });
     }
@@ -117,6 +124,21 @@ public class MainWearActivity extends Activity {
                 }
 
                 dataItems.release();
+                if (rawData != null) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            startGridActivity();
+                        }
+                    });
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mTextView.setText("Problem loading menu. Try again");
+                        }
+                    });
+                }
             }
         });
     }
