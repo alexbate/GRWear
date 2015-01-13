@@ -55,8 +55,14 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
                 description += "/£" + thisMeal.getJSONArray("price").getString(1);
 
             } catch (JSONException e) {
-                //Conference period
-                description = "Item " + Integer.toString(i2) + " - £5.50/£7.50";
+                //Conference period, not dinner
+                description = "Item " + Integer.toString(i2);
+                if (i!=1) {
+                    description += " - £5.50/£7.50";
+                } else {
+                    description += " - £3.75";
+
+                }
             }
 
             try {
