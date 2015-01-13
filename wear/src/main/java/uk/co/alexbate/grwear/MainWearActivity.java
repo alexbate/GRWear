@@ -20,7 +20,18 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainWearActivity extends Activity {
@@ -61,9 +72,30 @@ public class MainWearActivity extends Activity {
     }
 
     public void startGridActivity() {
-        Intent intent = new Intent(this, GridActivity.class);
-        intent.putExtra("uk.co.alexbate.GRWear.API_DATA", rawData);
-        startActivity(intent);
+        try {
+            JSONObject json = new JSONObject(rawData);
+            JSONArray jsonArray = json.getJSONArray("menus");
+            json = jsonArray.getJSONObject(0);
+            String dateS = json.getString("date");
+            DateFormat format = new SimpleDateFormat("dd/MM/yy", Locale.ENGLISH);
+            Date menuDate = format.parse(dateS);
+            //Get midnight today
+            Calendar c = new GregorianCalendar();
+            c.set(GregorianCalendar.HOUR_OF_DAY, 0);
+            c.set(GregorianCalendar.MINUTE, 0);
+            c.set(GregorianCalendar.SECOND, 0);
+            c.set(GregorianCalendar.MILLISECOND, 0);
+            Date compareDate = c.getTime();
+            if (!menuDate.before(compareDate)) {
+                Intent intent = new Intent(this, GridActivity.class);
+                intent.putExtra("uk.co.alexbate.GRWear.API_DATA", rawData);
+                startActivity(intent);
+            }
+        } catch (JSONException e1) {
+            Log.e("JSONException", e1.getMessage());
+        } catch (ParseException e2) {
+            Log.e("ParseException", e2.getMessage());
+        }
     }
 
     private void initGoogleServices() {
