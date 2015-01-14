@@ -90,6 +90,8 @@ public class MainWearActivity extends Activity {
                 Intent intent = new Intent(this, GridActivity.class);
                 intent.putExtra("uk.co.alexbate.GRWear.API_DATA", rawData);
                 startActivity(intent);
+            } else {
+                mTextView.setText("Still fetching today's menu. Try again.");
             }
         } catch (JSONException e1) {
             Log.e("JSONException", e1.getMessage());
