@@ -11,6 +11,7 @@
         android:theme="@android:style/Theme.DeviceDefault" >
         <activity
             android:name=".MainWearActivity"
+            android:noHistory="true"
             android:label="Nosh" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +24,8 @@
 
         <activity
             android:name=".GridActivity"
-            android:label="@string/title_activity_grid" >
+            android:label="@string/title_activity_grid"
+            android:noHistory="true">
         </activity>
     </application>
 
