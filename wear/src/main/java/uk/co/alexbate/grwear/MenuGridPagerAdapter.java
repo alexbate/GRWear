@@ -11,31 +11,58 @@ import org.json.JSONObject;
 
 public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
     private JSONObject json;
+    private JSONObject json1;
+    private JSONObject json2;
 
     public MenuGridPagerAdapter(String rd, FragmentManager fm) {
         super(fm);
         try {
             json = new JSONObject(rd);
             JSONArray jsonArray = json.getJSONArray("menus");
-            json = jsonArray.getJSONObject(0);
+            jsonArray = standardiseJSON(jsonArray);
+            json1 = jsonArray.getJSONObject(0);
+            json2 = jsonArray.getJSONObject(1);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
     }
 
+    private JSONArray standardiseJSON(JSONArray array) throws JSONException {
+        for (int i=0; i<array.length(); i++) {
+            JSONObject obj = array.getJSONObject(i);
+
+            if (!obj.has("lunch")) {
+                obj.put("lunch", new JSONArray());
+            }
+
+            if (!obj.has("dinner")) {
+                obj.put("dinner", new JSONArray());
+            }
+        }
+        return array;
+    }
+
     @Override
     public Fragment getFragment(int i, int i2) {
+        JSONObject today;
+
+        if (i > 1) {
+            today = json2;
+        } else {
+            today = json1;
+        }
+
         if (i2==0) {
             String meal = "";
-            switch(i) {
+            switch(i % 2) {
                 case 0: meal="Lunch";
                         break;
                 case 1: meal="Dinner";
                         break;
             }
             try {
-                return CardFragment.create(meal, json.getString("date"));
+                return CardFragment.create(meal, today.getString("date"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -44,10 +71,10 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
             String description = "";
             JSONObject thisMeal = null;
             try {
-                if (i == 0) {
-                    meals = json.getJSONArray("lunch");
+                if (i % 2 == 0) {
+                    meals = today.getJSONArray("lunch");
                 } else {
-                    meals = json.getJSONArray("dinner");
+                    meals = today.getJSONArray("dinner");
                 }
                 thisMeal = meals.getJSONObject(i2 - 1);
                 description = "Item " + Integer.toString(i2);
@@ -78,7 +105,7 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
 
     @Override
     public int getRowCount() {
-        return json.length() -1;
+        return json1.length() + json2.length() - 2;
     }
 
     @Override
@@ -87,10 +114,16 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
         try {
             switch (i) {
                 case (0):
-                    r = json.getJSONArray("lunch").length();
+                    r = json1.getJSONArray("lunch").length();
                     break;
                 case (1):
-                    r = json.getJSONArray("dinner").length();
+                    r = json1.getJSONArray("dinner").length();
+                    break;
+                case (2):
+                    r = json2.getJSONArray("lunch").length();
+                    break;
+                case (3):
+                    r = json2.getJSONArray("dinner").length();
                     break;
                 default:
                     r = 0;

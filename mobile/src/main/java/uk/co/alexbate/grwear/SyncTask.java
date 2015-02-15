@@ -27,7 +27,7 @@ public class SyncTask extends AsyncTask<Void, Void, Integer> {
 
     public String getData() throws IOException {
         HttpClient httpclient = new DefaultHttpClient();
-        HttpGet httpget = new HttpGet("http://rsa33.user.srcf.net/api/grmenu?lim=1");
+        HttpGet httpget = new HttpGet("http://rsa33.user.srcf.net/api/grmenu?lim=2");
         HttpResponse response = httpclient.execute(httpget);
         if (response==null) {
             Log.e("getData", "response is null");
