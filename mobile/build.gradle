@@ -7,8 +7,8 @@ android {
         applicationId "uk.co.alexbate.grwear"
         minSdkVersion 18
         targetSdkVersion 21
-        versionCode 3
-        versionName '1.0.2.1'
+        versionCode 4
+        versionName '1.1.0.0'
     }
     buildTypes {
         release {
