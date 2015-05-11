@@ -21,7 +21,9 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
             JSONArray jsonArray = json.getJSONArray("menus");
             jsonArray = standardiseJSON(jsonArray);
             json1 = jsonArray.getJSONObject(0);
-            json2 = jsonArray.getJSONObject(1);
+            if (jsonArray.length() > 1) {
+                json2 = jsonArray.getJSONObject(1);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -105,7 +107,11 @@ public class MenuGridPagerAdapter extends FragmentGridPagerAdapter {
 
     @Override
     public int getRowCount() {
-        return json1.length() + json2.length() - 2;
+       if(json2!= null) {
+           return json1.length() + json2.length() - 2;
+       } else {
+           return json1.length() - 1;
+       }
     }
 
     @Override
